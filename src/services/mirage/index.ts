@@ -1,4 +1,4 @@
-import { createServer, Model, Factory } from "miragejs";
+import { createServer, Model, Factory, Response } from "miragejs";
 import { faker } from "@faker-js/faker";
 
 type User = {
@@ -33,14 +33,28 @@ export function makeServer() {
 
     /* Gerar dados fictícios no miraje a fim de testar */
     seeds(server) {
-      server.createList("user", 10);
+      server.createList("user", 200);
     },
 
     routes() {
       this.namespace = "api"; /* /api/users para chamar as rotas */
       this.timing = 750; /* Todas as chamadas vão demorar 750 milisegundos para acontecer */
       /* O miraje vai criar a estrutura necessaria para buscar, criar e atualizar */
-      this.get("/users");
+      this.get("/users", function (schema, request) {
+        const { page = 1, per_page = 10 } = request.queryParams;
+
+        const total = schema.all("user").length;
+
+        const pageStart = (Number(page) - 1) * Number(per_page);
+        const pageEnd = pageStart + Number(per_page);
+
+        const users = this.serialize(schema.all("user")).users.slice(
+          pageStart,
+          pageEnd
+        );
+
+        return new Response(200, { "x-total-count": String(total) }, { users });
+      });
       this.post("/users");
 
       /* Quando terminar de determinar as rotas ele volta pro estado incial */

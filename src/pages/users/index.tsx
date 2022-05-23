@@ -22,7 +22,7 @@ import { Header } from "../../components/Header";
 import { Pagination } from "../../components/Pagination";
 import { Sidebar } from "../../components/Sidebar";
 
-import { useQuery } from "react-query";
+import { useUsers } from "../../services/hooks/useUsers";
 
 export default function UserList() {
   /* Os dados da requisicao ficam armazenados em um cache e 
@@ -34,30 +34,7 @@ export default function UserList() {
     fetching -> ela está no meio do carregamento, é quando de fato saio da tela e volto
     fresh -> é um dado novo e que não preciso recarrega-lo durante um periodo. O query assume que todos os dados já estão obsoletos e que precisam ser recarregados
     */
-  const { data, isLoading, error, isFetching, refetch } = useQuery(
-    "users",
-    async () => {
-      const response = await fetch("http://localhost:3000/api/users");
-      const data = await response.json();
-
-      const users = data.users.map((user) => {
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          createdAt: new Date(user.createdAt).toLocaleDateString("pt-BR", {
-            day: "2-digit",
-            month: "long",
-            year: "numeric",
-          }),
-        };
-      });
-
-      return users;
-    },
-    /* No terceiro parametro posso passar o staleTime que ela vai estar em estado de FRESH e nao precisa ser recarregada durante 5s */
-    { staleTime: 1000 * 5 }
-  );
+  const { data, isLoading, error, isFetching, refetch } = useUsers();
 
   const isWideVersion = useBreakpointValue({
     base: false,
@@ -160,7 +137,11 @@ export default function UserList() {
                 </Tbody>
               </Table>
 
-              <Pagination />
+              <Pagination
+                totalCountOfRegisters={200}
+                currentPage={19}
+                onPageChange={() => {}}
+              />
             </>
           )}
         </Box>
