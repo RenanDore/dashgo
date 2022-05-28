@@ -23,18 +23,20 @@ import { Pagination } from "../../components/Pagination";
 import { Sidebar } from "../../components/Sidebar";
 
 import { useUsers } from "../../services/hooks/useUsers";
+import { useState } from "react";
 
 export default function UserList() {
   /* Os dados da requisicao ficam armazenados em um cache e 
   é o nome do primeiro parametro que passo */
 
-  /* 
+  /*
   React query devtools -> 
     stale -> obsoleto. Indica que se o usuario sair dessa tela e voltar ele vai recarregar os dados
     fetching -> ela está no meio do carregamento, é quando de fato saio da tela e volto
     fresh -> é um dado novo e que não preciso recarrega-lo durante um periodo. O query assume que todos os dados já estão obsoletos e que precisam ser recarregados
     */
-  const { data, isLoading, error, isFetching, refetch } = useUsers();
+  const [page, setPage] = useState(1);
+  const { data, isLoading, error, isFetching, refetch } = useUsers(page);
 
   const isWideVersion = useBreakpointValue({
     base: false,
@@ -101,7 +103,7 @@ export default function UserList() {
                 </Thead>
 
                 <Tbody>
-                  {data.map((user) => {
+                  {data.users.map((user) => {
                     return (
                       <Tr key={user.id}>
                         <Td px={["4", "4", "6"]}>
@@ -138,9 +140,9 @@ export default function UserList() {
               </Table>
 
               <Pagination
-                totalCountOfRegisters={200}
-                currentPage={19}
-                onPageChange={() => {}}
+                totalCountOfRegisters={data.totalCount}
+                currentPage={page}
+                onPageChange={setPage}
               />
             </>
           )}
