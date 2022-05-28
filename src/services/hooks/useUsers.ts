@@ -43,7 +43,7 @@ export function useUsers(page: number) {
     /* Transformar num array e passar o segundo parametro para que o react query atualize sempre que mudar a page */
     ["users", page],
     () => getUsers(page),
-    { staleTime: 1000 * 5 }
+    { staleTime: 1000 * 60 * 10 } // 10 minutes
     /* No terceiro parametro posso passar o staleTime que ela vai estar em estado de FRESH e nao precisa ser recarregada durante 5s */
   );
 }
